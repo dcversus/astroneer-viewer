@@ -29,16 +29,9 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: VITE_BASE=/astroneer-viewer/ npm run build
-      - run: npm run docs:build
-      - name: Assemble site
-        run: |
-          mkdir -p site
-          cp -r dist/. site/
-          mkdir -p site/docs
-          cp -r docs/.vitepress/dist/. site/docs/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
 
   deploy:
     if: github.ref == 'refs/heads/main'

@@ -13,9 +13,6 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
     "dump": "node --experimental-strip-types --no-warnings scripts/dump.ts",
     "summary": "node --experimental-strip-types --no-warnings scripts/summary.ts"
   },
@@ -32,8 +29,7 @@
     "typescript": "5.9",
     "typescript-eslint": "^8.72.1",
     "vite": "npm:@voidzero-dev/vite-plus-core@1.4.0",
-    "vite-plus": "1.4.0",
-    "vitepress": "^1.6.4"
+    "vite-plus": "1.4.0"
   },
   "description": "Explore an Astroneer save in 3D: planets, bases, tethers, vehicles, deaths, research and missions, entirely in your browser.",
   "license": "GPL-3.0-only",

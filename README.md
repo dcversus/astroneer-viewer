@@ -3,14 +3,12 @@
 [![CI](https://github.com/dcversus/astroneer-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dcversus/astroneer-viewer/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Open the viewer](https://img.shields.io/badge/open-viewer-ffb547)](https://dcversus.github.io/astroneer-viewer/)
-[![Docs](https://img.shields.io/badge/docs-vitepress-5ce1e6)](https://dcversus.github.io/astroneer-viewer/docs/)
 
 Open an Astroneer `.savegame` and explore your worlds in 3D, entirely in the
 browser. Nothing is uploaded; the file is parsed in a Web Worker on your
 machine.
 
-**[Open the viewer](https://dcversus.github.io/astroneer-viewer/)** ·
-**[Documentation](https://dcversus.github.io/astroneer-viewer/docs/)**
+**[Open the viewer](https://dcversus.github.io/astroneer-viewer/)**
 
 ## What you get
 
@@ -60,9 +58,8 @@ produces the static site. Node 22 or newer.
 
 The save is a 16-byte header followed by a zlib stream containing a GVAS
 archive: a name table, object records with tagged properties, actor records
-with transforms, and a player chunk. See the
-[save format notes](https://dcversus.github.io/astroneer-viewer/docs/save-format)
-for the details that were reverse-engineered for this project.
+with transforms, and a player chunk. The details reverse-engineered for this
+project are in [SAVE-FORMAT.md](SAVE-FORMAT.md).
 
 Terrain shape comes from the measured altitude of every surface object in your
 save; procedural relief fills the parts you have not visited. Miniatures are

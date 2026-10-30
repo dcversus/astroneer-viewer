@@ -21,7 +21,7 @@ const noComments = {
 };
 
 export default tseslint.config(
-  { ignores: ["dist/**", "docs/.vitepress/cache/**", "docs/.vitepress/dist/**", "node_modules/**", ".playwright-mcp/**"] },
+  { ignores: ["dist/**", "node_modules/**", ".playwright-mcp/**"] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
@@ -41,7 +41,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["eslint.config.js", "docs/.vitepress/config.ts"],
+    files: ["eslint.config.js"],
     ...tseslint.configs.disableTypeChecked,
   },
 );

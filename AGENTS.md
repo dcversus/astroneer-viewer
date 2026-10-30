@@ -13,7 +13,7 @@ call with user data; keep it that way.
 - `src/main.ts` app shell and state
 - `tests/` Node test runner suites (`npm test`)
 - `scripts/` CLI helpers for inspecting a save
-- `docs/` VitePress site published to GitHub Pages
+- `SAVE-FORMAT.md` what is known about the save layout
 
 ## Rules
 
