@@ -210,8 +210,8 @@ export function buildWorld(raw: RawSave, fileName: string, parseMs: number): Bui
       interesting = "Where your journey began";
       facts.push({ label: "Shelter", value: friendlyName(o.type) });
     }
-    if (cat === "death") interesting = "You died here";
-    if (cat === "backpack") interesting = "Dropped backpack that may still hold items";
+    if (cat === "death") interesting = "A lost astroneer rests here";
+    if (cat === "backpack") interesting = "Lost backpack that may still hold items";
     if (typeof p.Plucked === "boolean") facts.push({ label: "Picked", value: p.Plucked ? "yes" : "no", tone: p.Plucked ? "muted" : "good" });
     if (typeof p.IsUnlocked === "boolean") {
       facts.push({ label: "Unlocked", value: p.IsUnlocked ? "yes" : "no", tone: p.IsUnlocked ? "good" : "warn" });
@@ -275,7 +275,7 @@ export function buildWorld(raw: RawSave, fileName: string, parseMs: number): Bui
     if (e.cat === "beacon" && actors[e.id].transform.scale[0] < 0.5) {
       const corpse = deaths.find((d) => d.planet === e.planet && Math.hypot(d.pos[0] - e.pos[0], d.pos[1] - e.pos[1], d.pos[2] - e.pos[2]) < 500);
       if (corpse) {
-        corpse.facts.push({ label: "Death beacon", value: "yes" });
+        corpse.facts.push({ label: "Marker beacon", value: "yes" });
         continue;
       }
     }
@@ -326,7 +326,9 @@ export function buildWorld(raw: RawSave, fileName: string, parseMs: number): Bui
   }
   for (const planet of planetList) {
     const mine = entities.filter((e) => e.planet === planet.id);
-    planet.visited = mine.some((e) => ["base", "beacon", "vehicle", "tether", "death", "start", "power"].includes(e.cat));
+    planet.visited = mine.some(
+      (e) => e.cat === "tether" || e.cat === "start" || e.cat === "vehicle" || /^(Beacon_Small|LandingPad_|Shelter_|Oxygenator)/.test(e.cls),
+    );
     const pads = mine.filter((e) => e.path.includes("NaturalLandingPad")).map((e) => e.dist);
     const sample = (pads.length >= 3 && planet.id !== "Space" ? pads : mine.map((e) => e.dist)).sort((x, y) => x - y);
     planet.radius = sample.length ? sample[Math.floor(sample.length * (pads.length >= 3 ? 0.5 : 0.7))] || 1000 : 100000;

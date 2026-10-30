@@ -21,7 +21,7 @@ export function renderJourney(root: HTMLElement, m: WorldModel, act: Actions): v
     r.unclaimedPoints > 0
       ? `Another ${fmtInt(r.unclaimedPoints)} bytes are waiting in ${fmtInt(r.unclaimedSources)} research items you haven't collected. `
       : "",
-    `You've landed on ${visited.length} of ${realWorlds.length} worlds, finished ${done.length} missions and died ${fmtInt(count("death"))} times.`,
+    `You've landed on ${visited.length} of ${realWorlds.length} worlds, finished ${done.length} missions and found ${fmtInt(count("death"))} lost astroneers.`,
   );
   root.replaceChildren(
     h(
@@ -61,19 +61,19 @@ export function renderJourney(root: HTMLElement, m: WorldModel, act: Actions): v
           : null,
       ),
       section(
-        "Deaths and recovery",
+        "Lost astroneers",
         h(
           "dl",
           { class: "facts wide" },
-          fact("Deaths", fmtInt(count("death"))),
-          fact("Backpacks still lying out", fmtInt(count("backpack"))),
+          fact("Lost astroneers found", fmtInt(count("death"))),
+          fact("Lost backpacks", fmtInt(count("backpack"))),
           m.player.respawnTokens !== undefined ? fact("Respawn tokens", String(m.player.respawnTokens)) : null,
         ),
         h(
           "div",
           { class: "row-actions" },
-          h("button", { type: "button", class: "btn", onclick: () => act.showEntities("death") }, "Show my deaths"),
-          h("button", { type: "button", class: "btn", onclick: () => act.showEntities("backpack") }, "Show dropped backpacks"),
+          h("button", { type: "button", class: "btn", onclick: () => act.showEntities("death") }, "Show lost astroneers"),
+          h("button", { type: "button", class: "btn", onclick: () => act.showEntities("backpack") }, "Show lost backpacks"),
         ),
       ),
       section(
@@ -125,8 +125,9 @@ function worlds(m: WorldModel, act: Actions): HTMLElement {
       const meta = PLANETS[p.id];
       const yours = (["base", "beacon", "vehicle", "death"] as CategoryId[])
         .filter((c) => p.counts[c])
-        .map((c) => `${fmtInt(p.counts[c]!)} ${CATEGORY[c].label.toLowerCase()}`);
-      const status = m.player.entity?.planet === p.id ? "You are here" : p.visited ? "Visited" : Object.keys(p.counts).length ? "Scouted" : "Unvisited";
+        .map((c) => `${fmtInt(p.counts[c]!)} ${CATEGORY[c].label.toLowerCase()}`)
+        .filter(() => p.visited);
+      const status = m.player.entity?.planet === p.id ? "You are here" : p.visited ? "Visited" : "Not visited yet";
       const gate = p.gate
         ? p.gate.engineActivated
           ? "Gateway engine active"
@@ -144,7 +145,7 @@ function worlds(m: WorldModel, act: Actions): HTMLElement {
           h(
             "span",
             { class: "world-text" },
-            h("span", { class: "world-name" }, p.name, h("span", { class: `badge ${status === "Unvisited" ? "muted" : ""}` }, status)),
+            h("span", { class: "world-name" }, p.name, h("span", { class: `badge ${status === "Not visited yet" ? "muted" : ""}` }, status)),
             h("span", { class: "muted" }, meta.tagline),
             h("span", { class: "small" }, [yours.join(", "), gate].filter(Boolean).join(". ") || "Nothing of yours here yet"),
           ),

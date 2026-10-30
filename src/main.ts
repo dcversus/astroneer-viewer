@@ -385,8 +385,8 @@ function showSystem(on: boolean) {
     const meta = PLANETS[id];
     const youHere = model.player.entity?.planet === id;
     const total = Object.values(p.counts).reduce((a, b) => a + (b ?? 0), 0);
-    const status = youHere ? "You are here" : p.visited ? "Visited" : total ? "Scouted from orbit" : "Not visited yet";
-    const stats = (["base", "vehicle", "beacon", "death", "backpack", "gateway"] as CategoryId[])
+    const status = youHere ? "You are here" : p.visited ? "Visited" : "Not visited yet";
+    const stats = (p.visited ? (["base", "vehicle", "beacon", "tether", "power"] as CategoryId[]) : [])
       .filter((c) => p.counts[c])
       .slice(0, 4)
       .map((c) => `${fmtInt(p.counts[c]!)} ${CATEGORY[c].label.toLowerCase()}`);
@@ -401,8 +401,8 @@ function showSystem(on: boolean) {
       h("span", { class: "world-orb" }, planetOrb(meta.colors, 132)),
       h("span", { class: "world-name" }, p.name),
       h("span", { class: "world-tag" }, meta.tagline),
-      h("span", { class: `badge${youHere ? " here" : total ? "" : " muted"}` }, status),
-      h("span", { class: "world-stats" }, stats.length ? stats.join(" · ") : total ? `${fmtInt(total)} things seen` : "Nothing of yours here yet"),
+      h("span", { class: `badge${youHere ? " here" : p.visited ? "" : " muted"}` }, status),
+      h("span", { class: "world-stats" }, stats.length ? stats.join(" · ") : p.visited ? `${fmtInt(total)} things here` : "Nothing of yours here yet"),
       h("span", { class: "world-enter" }, "Open map"),
     );
   });
@@ -625,8 +625,8 @@ function renderSearch() {
       "Gateway chamber waiting to be activated",
       "Locked puzzle with a reward inside",
       "Unclaimed research bytes",
-      "Dropped backpack that may still hold items",
-      "You died here",
+      "Lost backpack that may still hold items",
+      "A lost astroneer rests here",
       "Not researched yet",
       "Salvage with scrap and parts",
     ];
