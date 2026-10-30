@@ -137,7 +137,7 @@ function tickLabels() {
     el.style.transform = `translate(${Math.round(c.x)}px, ${Math.round(c.y)}px) translate(-50%, -50%)`;
   });
   const limit = matchMedia("(max-width: 760px)").matches ? 10 : 26;
-  const raw = globe.labelTargets(limit * 3, [state.selected, state.hovered]);
+  const raw = globe.labelTargets(limit * 3, [state.selected, state.hovered], globe.cam.distance < 1.5);
   const sticky = raw.filter((t) => shownLabelIds.has(t.entity.id));
   const fresh = raw.filter((t) => !shownLabelIds.has(t.entity.id));
   const targets = [...sticky, ...fresh].slice(0, limit);

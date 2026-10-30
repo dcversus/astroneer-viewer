@@ -37,6 +37,7 @@ const IMPORTANCE: Record<CategoryId, number> = {
 };
 const CLUTTER_HIDE = 34;
 const MAX_PIN_METERS = 110;
+const CLOSE_UP_METERS = 6;
 const PIN_IMPORTANCE = 0.55;
 const LABEL_CATS = new Set<CategoryId>(["player", "start", "vehicle", "beacon", "gateway", "landing", "lore"]);
 const NO_PIN = new Set<CategoryId>(["tether"]);
@@ -115,6 +116,7 @@ interface Inst {
   underground: boolean;
   importance: number;
   maxScale: number;
+  minScale: number;
   index: number;
   model: string;
   height: number;
@@ -468,6 +470,7 @@ export class World {
           underground,
           importance: IMPORTANCE[e.cat] ?? 0.3,
           maxScale: MAX_PIN_METERS / modelSize(def),
+          minScale: THREE.MathUtils.clamp((e.cat === "tether" ? 2.2 : CLOSE_UP_METERS) / modelSize(def), 1, 4),
           index: i,
           model,
           height: def.height,
@@ -702,7 +705,7 @@ export class World {
     this.tetherLines = make(seg.tether, "#4dd4ff", 2.5);
     this.powerLines = make(seg.power, "#ffd400", 3);
   }
-  labelTargets(max: number, always: (Entity | null)[] = []): LabelTarget[] {
+  labelTargets(max: number, always: (Entity | null)[] = [], allCategories = false): LabelTarget[] {
     const out: LabelTarget[] = [];
     const w = this.container.clientWidth,
       hgt = this.container.clientHeight;
@@ -712,11 +715,11 @@ export class World {
     }[] = [];
     for (const layer of this.pinLayers.values()) {
       const forced = layer.insts.some((i) => always.includes(i.entity));
-      if (!LABEL_CATS.has(layer.cat) && !forced) continue;
+      if (!allCategories && !LABEL_CATS.has(layer.cat) && !forced) continue;
       layer.insts.forEach((inst, i) => {
         if (layer.hide[i] > 0.5 || !inst.screen) return;
         const isAlways = always.includes(inst.entity);
-        if (!LABEL_CATS.has(layer.cat) && !isAlways) return;
+        if (!allCategories && !LABEL_CATS.has(layer.cat) && !isAlways) return;
         const dx = inst.screen.x - w / 2,
           dy = inst.screen.y - hgt / 2;
         cands.push({ inst, score: (isAlways ? 10 : inst.importance) - Math.hypot(dx, dy) / Math.hypot(w, hgt) });
@@ -885,7 +888,7 @@ export class World {
           m.glow?.setMatrixAt(inst.index, zero);
           continue;
         }
-        const s = upm * Math.min(inst.maxScale, 1 + inst.importance * grow);
+        const s = upm * Math.max(inst.minScale, Math.min(inst.maxScale, 1 + inst.importance * grow));
         pos.copy(inst.dir).multiplyScalar(inst.radius);
         scl.set(s, s, s);
         m4.compose(pos, inst.quat, scl);
@@ -950,7 +953,6 @@ export class World {
       layer.insts.forEach((inst, i) => {
         let show = layerOn && (inst.importance >= PIN_IMPORTANCE || (inst.importance >= 0.3 ? this.grow < 20 : this.grow < 9));
         if (show && inst.underground && !this.xray && inst.importance < PIN_IMPORTANCE) show = false;
-        if (show && this.inside > 0.6 && inst.importance < PIN_IMPORTANCE) show = false;
         if (show) {
           v.set(layer.pos[i * 3], layer.pos[i * 3 + 1], layer.pos[i * 3 + 2]).applyMatrix4(this.group.matrixWorld);
           if (!this.xray && occluded(cam, v, R * TERRAIN_SHRINK)) show = false;
@@ -995,6 +997,10 @@ export class World {
     this.clusterGroups = [...cells.values()].filter((g) => g.length > 1);
   }
   private clusterPins(): void {
+    if (this.cam.distance < R * 0.15) {
+      this.clusterList = [];
+      return;
+    }
     const level = Math.round(Math.log(Math.max(this.cam.distance, 1e-3)) / Math.log(1.5));
     if (level !== this.clusterLevel) {
       this.clusterLevel = level;
