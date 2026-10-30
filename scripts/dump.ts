@@ -1,0 +1,20 @@
+import { readFileSync } from "node:fs";
+import { inflate, parseContainer } from "../src/save/container.ts";
+import { PropertyDecoder } from "../src/save/properties.ts";
+import { Reader } from "../src/save/reader.ts";
+const [file, filter = "", limitArg = "3"] = process.argv.slice(2);
+const raw = await inflate(new Uint8Array(readFileSync(file)));
+const save = parseContainer(raw);
+const { level } = save;
+const dec = new PropertyDecoder(level.names);
+console.log(save.header, save.levelName, "objects", level.objects.length, "actors", level.actors.length, "remote", save.remotePlayers.length);
+let shown = 0;
+const limit = Number(limitArg);
+level.objects.forEach((o, i) => {
+  if (!filter || !o.type.includes(filter) || shown >= limit) return;
+  shown++;
+  const props = dec.readProps(new Reader(o.data));
+  console.log(`\n#${i} ${o.type} name=${dec.name(o.nameIndex)} outer=${o.outer} custom=${o.custom.length}`);
+  console.log(JSON.stringify(props, null, 1).slice(0, 4000));
+});
+console.log("decoder errors", dec.errors);
